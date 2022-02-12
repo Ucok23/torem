@@ -2,8 +2,26 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
+import { GetServerSideProps } from 'next'
 
-const Home: NextPage = () => {
+import { PrismaClient, Torem, Prisma } from '@prisma/client'
+import { useState } from 'react'
+
+const prisma = new PrismaClient();
+
+export const getServerSideProps: GetServerSideProps = async() =>  {
+  const torems: Torem[] = await prisma.torem.findMany();
+  
+  return {
+    props: {
+      initTorem: torems
+    }
+  }
+}
+
+const Home = ({ initTorem }) => {
+  const [torems, setTorem] = useState<Torem[]>(initTorem);
+  // console.log(torems)
   return (
     <div className={styles.container}>
       <Head>
@@ -16,6 +34,14 @@ const Home: NextPage = () => {
         <h1 className={styles.title}>
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
+
+        {
+          torems.map((torem, i: number) => 
+            <div key={i}>
+              {torem.sentences}
+            </div>
+          )
+        }
 
         <p className={styles.description}>
           Get started by editing{' '}
